@@ -40,7 +40,7 @@ $PROFILE    IMPURITY=B  N.PEAK=2E20  Y.JUNC=0.015  X.MIN=0.075 WIDTH=0.011
 $+          XY.RAT=.75
 PROFILE     REGION=POLYSILI IMPURITY=P N.PEAK=1E20 UNIFORM
 PROFILE     REGION=SILICON IMPURITY=B  N.PEAK=3E15  UNIFORM     OUT.FILE=NMOS_DOPING
-PROFILE     REGION=SILICON IMPURITY=B  N.PEAK=3E16  Y.MAX=3E16 Y.JUNC=0.22
+PROFILE     REGION=SILICON IMPURITY=B  N.PEAK=3E16 Y.JUNC=0.22
 PROFILE     REGION=SILICON IMPURITY=As  N.PEAK=2E20  Y.JUNC=0.3  X.MIN=0    WIDTH=0.5  XY.RAT=.75
 PROFILE     REGION=SILICON IMPURITY=As  N.PEAK=2E20  Y.JUNC=0.3  X.MIN=2.5    WIDTH=0.5  XY.RAT=.75
 COMMENT	    Regrid on doping
@@ -58,18 +58,26 @@ METHOD      ICCG DAMPED
 SOLVE
 COMMENT     Solve using the refined grid, save solution for later use
 SYMB        CARRIERS=2
-log         out.file=SIM_ID_VG_Characteristics.tif
-SOLVE       V(Source)=0 V(Gate)=-0.5 V(Drain)=0.5 V(Substrate)=0 elec=Gate  vstep=0.01   nstep=400
+$$$$$$$$$$$$$$$$$$$$$$$$$ Q1 a) section $$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+SOLVE       V(Source)=0 V(Gate)=-1 V(Drain)=0.1 V(Substrate)=0
+log         out.file=SIM_NMOS_0.1_ID_VG.tif
+SOLVE       V(Source)=0 V(Gate)=-0.5 V(Drain)=0.1 V(Substrate)=0 elec=Gate  vstep=0.005   nstep=150
 log         close
+SOLVE       V(Source)=0 V(Gate)=3.5 V(Drain)=0.1 V(Substrate)=0 elec=Gate  vstep=-0.5   nstep=8
+log         out.file=SIM_NMOS_1.5_ID_VG.tif
+SOLVE       V(Source)=0 V(Gate)=-0.5 V(Drain)=1.5 V(Substrate)=0 elec=Gate  vstep=0.005   nstep=150
+log         close
+$$$$$$$$$$$$$$$$$$$$$$$$ Q1 a) Ends Here $$$$$$$$$$$$$$$$$$$$$$$$$$$$
 $Actually need to solve it downwards again just to solve this going up again?
 $Useless but Stack overflow if not performed
-SOLVE       V(Source)=0 V(Gate)=5 V(Drain)=0.5 V(Substrate)=0 elec=Gate  vstep=-1   nstep=5
-log         out.file=SIM_GateOverDrive.tif
+SOLVE       V(Source)=0 V(Gate)=3.5 V(Drain)=1.5 V(Substrate)=0 elec=Gate  vstep=-0.5   nstep=8
+SOLVE       V(Source)=0 V(Gate)=0 V(Drain)=1.5 V(Substrate)=0 elec=Drain  vstep=-0.5   nstep=3
+log         out.file=SIM_NMOS_GateOverDrive.tif
 SOLVE       V(Source)=0 V(Gate)=0.5 V(Drain)=0.1 V(Substrate)=0 elec=Gate  vstep=0.2   nstep=10
 log         close
 $Useless but Stack overflow if not performed
 SOLVE       V(Source)=0 V(Gate)=2.5 V(Drain)=0.1 V(Substrate)=0 elec=Gate  vstep=-0.5   nstep=5
-log         out.file=SIM_SubstrateBias.tif
+log         out.file=SIM_NMOS_SubstrateBias.tif
 $Required step -2V, need cherry-picking
 SOLVE       V(Source)=0 V(Gate)=0 V(Drain)=0.1 V(Substrate)=0 elec=Substrate  vstep=-0.2   nstep=30
 log         close
@@ -77,5 +85,6 @@ $PLOT.1D    IN.FILE=pmos_try6_sweep.txt X.AXIS=V(Gate) Y.AXIS=I(Gate) LOG UNCH C
 $PLOT.1D    IN.FILE=pmos_try6_sweep.txt X.AXIS=V(Gate) Y.AXIS=I(Source) LOG UNCH COLOR=2 LINE=2
 PLOT.2D     GRID  TITLE="NMOS"  FILL  SCALE
 $Manual PDF Page 450 and 453
-EXTRACT     MOS.PARA DRAIN=Drain GATE=Gate IN.FILE=SIM_ID_VG_Characteristics.tif
+EXTRACT     MOS.PARA DRAIN=Drain GATE=Gate IN.FILE=SIM_NMOS_0.1_ID_VG.tif
+EXTRACT     MOS.PARA DRAIN=Drain GATE=Gate IN.FILE=SIM_NMOS_1.5_ID_VG.tif
 SAVE        OUT.FILE=nmos.tif all TIF

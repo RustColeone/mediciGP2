@@ -1,0 +1,10 @@
+SIM_PMOS_0.1_ID_VG.tif
+    S_lin (linear slope):    1.0941E-06 (A/um-V) at   Vg=  -1.560     (V)
+    Vth (intercept)     :   -0.8395     (V)      from Vg=  -1.560     (V)
+    Vth_sat (intercept) :   -0.2069     (V)      from Vg=  -1.400     (V)
+    S_sub (subthr slope):     1360.     (mV/dec) at   Vg=  -1.360     (V)
+SIM_PMOS_1.5_ID_VG.tif
+    S_lin (linear slope):    1.1337E-05 (A/um-V) at   Vg=  -3.920     (V)
+    Vth (intercept)     :   -0.4751     (V)      from Vg=  -3.920     (V)
+    Vth_sat (intercept) :     2.004     (V)      from Vg=  -2.680     (V)
+    S_sub (subthr slope):     5240.     (mV/dec) at   Vg=  -2.360     (V)

@@ -1,0 +1,80 @@
+TITLE       MEDICI Project PMOS
+COMMENT     Specify a rectangular mesh
+MESH        SMOOTH=1
+X.MESH      WIDTH=7  H1=0.165
+$Easier when each region has its own mask ranked from 1 to 4, 
+$so total of 4 mask and 4 region, L means location
+Y.MESH      N=1   L=-0.5
+Y.MESH      N=2   L=-0.05
+Y.MESH      N=3   L=-0.025
+Y.MESH      N=4   L=0
+Y.MESH      DEPTH=0.3  H1=0.25
+Y.MESH      DEPTH=0.025 H1=0.025
+Y.MESH      DEPTH=0.025 H1=0.025
+Y.MESH      DEPTH=0.3  H1=0.1
+COMMENT     Eliminate some unnecessary substrate nodes
+$ELIMIN     COLUMNS  Y.MIN=0.037
+COMMENT     Specify oxide and silicon regions
+$It appears the IY.MAX means the node it would stop at
+REGION      NAME=Silicon SILICON
+REGION      SILICON
+REGION      OXIDE    IY.MAX=4
+REGION      POLYSILI X.MIN=0.6 X.MAX=2.4 Y.MIN=-0.05 Y.MAX=-0.025
+REGION      POLYSILI X.MIN=4.6 X.MAX=6.4 Y.MIN=-0.05 Y.MAX=-0.025
+COMMENT     Electrode definition
+ELECTR      NAME=GateN    X.MIN=0.6  X.MAX=2.4 Y.MIN=-0.6 Y.MAX=-0.05
+ELECTR      NAME=Substrate  BOTTOM 
+ELECTR      NAME=SourceN  X.MAX=0.5  IY.MAX=4
+ELECTR      NAME=DrainN   X.MIN=2.5 X.MAX=3.0  IY.MAX=4
+ELECTR      NAME=GateP    X.MIN=4.6  X.MAX=6.4 Y.MIN=-0.6 Y.MAX=-0.05
+ELECTR      NAME=SourceP  X.MIN=4.0 X.MAX=4.5  IY.MAX=4
+ELECTR      NAME=DrainP   X.MIN=6.5  IY.MAX=4
+PROFILE     REGION=SILICON IMPURITY=B  N.PEAK=3E15  UNIFORM  OUT.FILE=CMOS_DOPING
+PROFILE     REGION=SILICON IMPURITY=B  N.PEAK=3E16  Y.JUNC=0.22 X.MAX=3
+PROFILE     REGION=SILICON IMPURITY=As  N.PEAK=2E20  Y.JUNC=0.3  X.MIN=0    WIDTH=0.5  XY.RAT=.75
+PROFILE     REGION=SILICON IMPURITY=As  N.PEAK=2E20  Y.JUNC=0.3  X.MIN=2.5    WIDTH=0.5  XY.RAT=.75
+PROFILE     REGION=POLYSILI IMPURITY=P N.PEAK=1E20 UNIFORM X.MIN=0 X.MAX=3
+PROFILE     REGION=SILICON IMPURITY=P  N.PEAK=3E16  Y.JUNC=0.22 X.MIN=4 X.MAX=7
+PROFILE     REGION=SILICON IMPURITY=B  N.PEAK=2E20  Y.JUNC=0.3  X.MIN=4 X.MAX=4.5   XY.RAT=.75
+PROFILE     REGION=SILICON IMPURITY=B  N.PEAK=2E20  Y.JUNC=0.3  X.MIN=6.5 X.MAX=7   XY.RAT=.75
+PROFILE     REGION=POLYSILI IMPURITY=B N.PEAK=1E20 UNIFORM X.MIN=4 X.MAX=7
+COMMENT	    Regrid on doping
+REGRID      DOPING LOG IGNORE=OXIDE RATIO=2 SMOOTH=1
++           IN.FILE=CMOS_DOPING
+COMMENT     Specify contact parameters
+CONTACT     NAME=GateN WORKFUNC=5.27
+CONTACT     NAME=SourceN WORKFUNC=5.27
+CONTACT     NAME=DrainN WORKFUNC=5.27
+CONTACT     NAME=GateP WORKFUNC=5.27
+CONTACT     NAME=SourceP WORKFUNC=5.27
+CONTACT     NAME=DrainP WORKFUNC=5.27
+COMMENT     Specify physical models to use
+MODELS      CONMOB FLDMOB SRFMOB2
+COMMENT     Symbolic factorization, solve, regrid on potential
+SYMB        CARRIERS=0
+METHOD      ICCG DAMPED
+SOLVE
+COMMENT     Solve using the refined grid, save solution for later use
+SYMB        CARRIERS=2
+SOLVE       V(SourceN)=0 V(GateN)=0 V(DrainN)=0 V(Substrate)=0 V(SourceP)=0 V(GateP)=0 V(DrainP)=0
+log         out.file=SIM_ID_VG_Characteristics.tif
+SOLVE       V(SourceN)=0 V(GateN)=-0.5 V(DrainN)=0.5 V(Substrate)=0 elec=GateN  vstep=0.01   nstep=400
+log         close
+$Actually need to solve it downwards again just to solve this going up again?
+$Useless but Stack overflow if not performed
+SOLVE       V(SourceN)=0 V(GateN)=5 V(DrainN)=0.5 V(Substrate)=0 elec=GateN  vstep=-1   nstep=5
+log         out.file=SIM_GateOverDrive.tif
+SOLVE       V(SourceN)=0 V(GateN)=0.5 V(DrainN)=0.1 V(Substrate)=0 elec=GateN  vstep=0.2   nstep=10
+log         close
+$Useless but Stack overflow if not performed
+SOLVE       V(SourceN)=0 V(GateN)=2.5 V(DrainN)=0.1 V(Substrate)=0 elec=GateN  vstep=-0.5   nstep=5
+log         out.file=SIM_SubstrateBias.tif
+$Required step -2V, need cherry-picking
+SOLVE       V(SourceN)=0 V(GateN)=0 V(DrainN)=0.1 V(Substrate)=0 elec=Substrate  vstep=-0.2   nstep=30
+log         close
+
+PLOT.2D     GRID  TITLE="NMOS"  FILL  SCALE
+$Manual PDF Page 450 and 453
+EXTRACT     MOS.PARA DRAIN=DrainN GATE=GateN IN.FILE=SIM_ID_VG_Characteristics.tif
+EXTRACT     MOS.PARA DRAIN=DrainP GATE=GateP
+SAVE        OUT.FILE=nmos.tif all TIF
