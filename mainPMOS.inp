@@ -40,7 +40,7 @@ $PROFILE    IMPURITY=B  N.PEAK=2E20  Y.JUNC=0.015  X.MIN=0.075 WIDTH=0.011
 $+          XY.RAT=.75
 PROFILE     REGION=POLYSILI IMPURITY=B N.PEAK=1E20 UNIFORM
 PROFILE     REGION=SILICON IMPURITY=B  N.PEAK=3E15  UNIFORM     OUT.FILE=NMOS_DOPING
-PROFILE     REGION=SILICON IMPURITY=P  N.PEAK=3E16  Y.JUNC=0.5
+PROFILE     REGION=SILICON IMPURITY=P  N.PEAK=4E15  Y.JUNC=0.5
 PROFILE     REGION=SILICON IMPURITY=P  N.PEAK=3E16 Y.JUNC=0.22
 PROFILE     REGION=SILICON IMPURITY=B  N.PEAK=2E20  Y.JUNC=0.3  X.MIN=0    WIDTH=0.5  XY.RAT=.75
 PROFILE     REGION=SILICON IMPURITY=B  N.PEAK=2E20  Y.JUNC=0.3  X.MIN=2.5    WIDTH=0.5  XY.RAT=.75
@@ -48,9 +48,6 @@ COMMENT	    Regrid on doping
 REGRID      DOPING LOG IGNORE=OXIDE RATIO=2 SMOOTH=1
 +           IN.FILE=NMOS_DOPING
 COMMENT     Specify contact parameters
-CONTACT     NAME=Gate WORKFUNC=5.27
-CONTACT     NAME=Source WORKFUNC=5.27
-CONTACT     NAME=Drain WORKFUNC=5.27
 COMMENT     Specify physical models to use
 MODELS      CONMOB FLDMOB SRFMOB2
 COMMENT     Symbolic factorization, solve, regrid on potential
@@ -62,11 +59,11 @@ SYMB        CARRIERS=2
 SOLVE       V(Source)=0 V(Gate)=0.0 V(Drain)=-0.1 V(Substrate)=0 elec=Gate  vstep=0.4   nstep=10
 $$$$$$$$$$$$$$$$$$$$$$$$$ Q1 a) section $$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 log         out.file=SIM_PMOS_0.1_ID_VG.tif
-SOLVE       V(Source)=0 V(Gate)=4.0 V(Drain)=-0.1 V(Substrate)=0 elec=Gate  vstep=-0.04   nstep=200
+SOLVE       V(Source)=0 V(Gate)=2.0 V(Drain)=-0.1 V(Substrate)=0 elec=Gate  vstep=-0.04   nstep=200
 log         close
-SOLVE       V(Source)=0 V(Gate)=-4.0 V(Drain)=-0.1 V(Substrate)=0 elec=Gate  vstep=2   nstep=4
+SOLVE       V(Source)=0 V(Gate)=-4.0 V(Drain)=-0.1 V(Substrate)=0 elec=Gate  vstep=2   nstep=3
 log         out.file=SIM_PMOS_1.5_ID_VG.tif
-SOLVE       V(Source)=0 V(Gate)=4.0 V(Drain)=-1.5 V(Substrate)=0 elec=Gate  vstep=-0.04   nstep=200
+SOLVE       V(Source)=0 V(Gate)=2.0 V(Drain)=-1.5 V(Substrate)=0 elec=Gate  vstep=-0.04   nstep=200
 log         close
 $$$$$$$$$$$$$$$$$$$$$$$$ Q1 a) Ends Here $$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
@@ -82,9 +79,9 @@ log         out.file=SIM_PMOS_SubstrateBias.tif
 $Required step -2V, need cherry-picking
 SOLVE       V(Source)=0 V(Gate)=0 V(Drain)=-0.1 V(Substrate)=0 elec=Substrate  vstep=0.2   nstep=30
 log         close
-$PLOT.1D    IN.FILE=pmos_try6_sweep.txt X.AXIS=V(Gate) Y.AXIS=I(Gate) LOG UNCH COLOR=3 TITLE=Source Current Against Gate Voltage”
-$PLOT.1D    IN.FILE=pmos_try6_sweep.txt X.AXIS=V(Gate) Y.AXIS=I(Source) LOG UNCH COLOR=2 LINE=2
-PLOT.2D     GRID  TITLE="PMOS"  FILL  SCALE
+PLOT.1D    IN.FILE=SIM_PMOS_0.1_ID_VG.tif X.AXIS=V(Gate) Y.AXIS=I(Drain) UNCH COLOR=3
+PLOT.1D    IN.FILE=SIM_PMOS_1.5_ID_VG.tif X.AXIS=V(Gate) Y.AXIS=I(Drain) ^clear
+$PLOT.2D     GRID  TITLE="PMOS"  FILL  SCALE
 $Manual PDF Page 450 and 453
 EXTRACT     MOS.PARA DRAIN=Drain GATE=Gate IN.FILE=SIM_PMOS_0.1_ID_VG.tif
 EXTRACT     MOS.PARA DRAIN=Drain GATE=Gate IN.FILE=SIM_PMOS_1.5_ID_VG.tif
