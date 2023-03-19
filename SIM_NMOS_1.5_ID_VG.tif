@@ -1,4 +1,4 @@
-h TIF V1.2.1 MEDICI_LOG 2012.06-0 17-Mar-2023 02:46:31 mainNMOS.inp
+h TIF V1.2.1 MEDICI_LOG 2012.06-0 17-Mar-2023 05:21:40 mainNMOS.inp
 cd GEN          blnk               blnk          blnk        cart2D    1.00000E+00  0.00000E+00  0.00000E+00
 dset MEDICI_DATA
 di  time                      V(Gate)                   VA(Gate)                  I(Gate)                   + 

@@ -75,10 +75,26 @@ SOLVE       V(Source)=0 V(Gate)=0.5 V(Drain)=0.1 V(Substrate)=0 elec=Gate  vstep
 log         close
 $Useless but Stack overflow if not performed
 SOLVE       V(Source)=0 V(Gate)=2.5 V(Drain)=0.1 V(Substrate)=0 elec=Gate  vstep=-0.5   nstep=5
-log         out.file=SIM_NMOS_SubstrateBias.tif
 $Required step -2V, need cherry-picking
-SOLVE       V(Source)=0 V(Gate)=0 V(Drain)=0.1 V(Substrate)=0 elec=Substrate  vstep=-0.2   nstep=30
+
+SOLVE       V(Source)=0 V(Gate)=0 V(Drain)=0.1 V(Substrate)=0 elec=Substrate  vstep=-0.2   nstep=10
+log         out.file=SIM_NMOS_0.1_Vs-2.tif
+SOLVE       V(Source)=0 V(Gate)=-0.5 V(Drain)=0.1 V(Substrate)=-2 elec=Gate  vstep=0.01   nstep=400
 log         close
+SOLVE       V(Source)=0 V(Gate)=3.5 V(Drain)=0.1 V(Substrate)=-2 elec=Gate  vstep=-0.5   nstep=8
+
+SOLVE       V(Source)=0 V(Gate)=0 V(Drain)=0.1 V(Substrate)=-2 elec=Substrate  vstep=-0.2   nstep=10
+log         out.file=SIM_NMOS_0.1_Vs-4.tif
+SOLVE       V(Source)=0 V(Gate)=-0.5 V(Drain)=0.1 V(Substrate)=-4 elec=Gate  vstep=0.01   nstep=400
+log         close
+SOLVE       V(Source)=0 V(Gate)=3.5 V(Drain)=0.1 V(Substrate)=-4 elec=Gate  vstep=-0.5   nstep=8
+
+SOLVE       V(Source)=0 V(Gate)=0 V(Drain)=0.1 V(Substrate)=-4 elec=Substrate  vstep=-0.2   nstep=10
+log         out.file=SIM_NMOS_0.1_Vs-6.tif
+SOLVE       V(Source)=0 V(Gate)=-0.5 V(Drain)=0.1 V(Substrate)=-6 elec=Gate  vstep=0.01   nstep=400
+log         close
+SOLVE       V(Source)=0 V(Gate)=3.5 V(Drain)=0.1 V(Substrate)=-6 elec=Gate  vstep=-0.5   nstep=8
+
 PLOT.1D    IN.FILE=SIM_NMOS_0.1_ID_VG.tif X.AXIS=V(Gate) Y.AXIS=I(Drain) UNCH COLOR=3
 PLOT.1D    IN.FILE=SIM_NMOS_1.5_ID_VG.tif X.AXIS=V(Gate) Y.AXIS=I(Drain) ^clear
 $PLOT.2D     GRID  TITLE="NMOS"  FILL  SCALE

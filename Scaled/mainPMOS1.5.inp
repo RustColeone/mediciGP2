@@ -1,0 +1,70 @@
+TITLE       MEDICI Project PMOS
+COMMENT     Specify a rectangular mesh
+MESH        SMOOTH=1
+X.MESH      WIDTH=2.5  H1=0.165
+$Easier when each region has its own mask ranked from 1 to 4, 
+$so total of 4 mask and 4 region, L means location
+Y.MESH      N=1   L=-0.5
+Y.MESH      N=2   L=-0.05
+Y.MESH      N=3   L=-0.025
+Y.MESH      N=4   L=0
+Y.MESH      DEPTH=0.3  H1=0.25
+Y.MESH      DEPTH=0.025 H1=0.025
+Y.MESH      DEPTH=0.025 H1=0.025
+Y.MESH      DEPTH=0.3  H1=0.1
+COMMENT     Eliminate some unnecessary substrate nodes
+$ELIMIN     COLUMNS  Y.MIN=0.037
+COMMENT     Specify oxide and silicon regions
+$It appears the IY.MAX means the node it would stop at
+REGION      NAME=Silicon SILICON
+REGION      SILICON
+REGION      OXIDE    IY.MAX=4
+REGION      POLYSILI X.MIN=0.5 X.MAX=2.0 Y.MIN=-0.05 Y.MAX=-0.025
+COMMENT     Electrode definition
+ELECTR      NAME=Gate    X.MIN=0.5  X.MAX=2.0 Y.MIN=-0.6 Y.MAX=-0.05
+ELECTR      NAME=Substrate  BOTTOM 
+ELECTR      NAME=Source  X.MAX=0.417  IY.MAX=4
+ELECTR      NAME=Drain   X.MIN=2.083  IY.MAX=4
+COMMENT     Specify impurity profiles and fixed charge
+$PROFILE    IMPURITY=P  N.PEAK=3E15  UNIFORM     OUT.FILE=MDEX1DS_pmos_try6
+$PROFILE    IMPURITY=P  N.PEAK=8E17  Y.JUNC=0.006
+$PROFILE    IMPURITY=P  N.PEAK=4E19 UNIFORM Y.MIN=0.006 Y.MAX=0.02 X.MIN=0.027 X.MAX=0.034
+$PROFILE    IMPURITY=P  N.PEAK=4E19 UNIFORM Y.MIN=0.006 Y.MAX=0.02 X.MIN=0.050 X.MAX=0.057
+$PROFILE    IMPURITY=B  N.PEAK=7E19  Y.JUNC=0.007  X.MIN=0.0  WIDTH=0.032
+$+          XY.RAT=.75
+$PROFILE    IMPURITY=B  N.PEAK=7E19  Y.JUNC=0.007  X.MIN=0.052  WIDTH=0.032
+$+          XY.RAT=.75
+$PROFILE    IMPURITY=B  N.PEAK=2E20  Y.JUNC=0.015  X.MIN=0.0  WIDTH=0.011
+$+          XY.RAT=.75
+$PROFILE    IMPURITY=B  N.PEAK=2E20  Y.JUNC=0.015  X.MIN=0.075 WIDTH=0.011
+$+          XY.RAT=.75
+PROFILE     REGION=POLYSILI IMPURITY=B N.PEAK=1E20 UNIFORM
+PROFILE     REGION=SILICON IMPURITY=P  N.PEAK=3E15  UNIFORM     OUT.FILE=NMOS_DOPING
+$PROFILE     REGION=SILICON IMPURITY=P  N.PEAK=3E15  Y.JUNC=0.5
+PROFILE     REGION=SILICON IMPURITY=P  N.PEAK=3E16 Y.JUNC=0.22
+PROFILE     REGION=SILICON IMPURITY=B  N.PEAK=2E20  Y.JUNC=0.3  X.MIN=0    WIDTH=0.417  XY.RAT=.75
+PROFILE     REGION=SILICON IMPURITY=B  N.PEAK=2E20  Y.JUNC=0.3  X.MIN=2.083    WIDTH=0.417  XY.RAT=.75
+COMMENT	    Regrid on doping
+REGRID      DOPING LOG IGNORE=OXIDE RATIO=2 SMOOTH=1
++           IN.FILE=NMOS_DOPING
+COMMENT     Specify contact parameters
+COMMENT     Specify physical models to use
+MODELS      CONMOB FLDMOB SRFMOB2
+COMMENT     Symbolic factorization, solve, regrid on potential
+SYMB        CARRIERS=0
+METHOD      ICCG DAMPED
+SOLVE
+COMMENT     Solve using the refined grid, save solution for later use
+SYMB        CARRIERS=2
+SOLVE       V(Source)=0 V(Gate)=0.0 V(Drain)=-0.1 V(Substrate)=0 elec=Gate  vstep=0.4   nstep=10
+$$$$$$$$$$$$$$$$$$$$$$$$$ Q1 a) section $$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+log         out.file=SIM_PMOS_GL1.5_ID_VG.tif
+SOLVE       V(Source)=0 V(Gate)=2.0 V(Drain)=-0.1 V(Substrate)=0 elec=Gate  vstep=-0.02   nstep=400
+log         close
+$$$$$$$$$$$$$$$$$$$$$$$$ Q1 a) Ends Here $$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+PLOT.1D    IN.FILE=SIM_PMOS_GL1.5_ID_VG.tif X.AXIS=V(Gate) Y.AXIS=I(Drain) UNCH COLOR=3
+$PLOT.2D     GRID  TITLE="PMOS"  FILL  SCALE
+$Manual PDF Page 450 and 453
+EXTRACT     MOS.PARA DRAIN=Drain GATE=Gate IN.FILE=SIM_PMOS_GL1.5_ID_VG.tif
+SAVE        OUT.FILE=pmos.tif all TIF
